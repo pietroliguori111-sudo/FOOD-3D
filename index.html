@@ -1,0 +1,589 @@
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Carta en tu mesa</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Alfa+Slab+One&family=Bricolage+Grotesque:opsz,wght@12..96,400;12..96,500;12..96,600;12..96,700&display=swap">
+<style>
+  :root {
+    --bg: #FBF8F2;
+    --surface: #FFFFFF;
+    --ink: #1E1A16;
+    --ink-2: #6E6459;
+    --line: #E4DCCF;
+    --rojo: #B3261E;
+    --rojo-ink: #FFFFFF;
+    --verde: #244A3A;
+    --verde-soft: #E4EDE7;
+    --mostaza: #D9A441;
+    --mesa-a: #E9DCC4;
+    --mesa-b: #D2BC98;
+    --shadow: 0 18px 50px rgba(50, 35, 20, .22);
+    --display: "Alfa Slab One", "Rockwell", "Roboto Slab", Georgia, serif;
+    --body: "Bricolage Grotesque", "Segoe UI", system-ui, -apple-system, sans-serif;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --bg: #151C18;
+      --surface: #1D2621;
+      --ink: #EEE8DB;
+      --ink-2: #A79F91;
+      --line: #2F3A34;
+      --rojo: #E0564B;
+      --rojo-ink: #1A0B0A;
+      --verde: #8CC4A6;
+      --verde-soft: #223A30;
+      --mostaza: #E5B65A;
+      --mesa-a: #2E2823;
+      --mesa-b: #1F1B18;
+      --shadow: 0 18px 50px rgba(0, 0, 0, .55);
+    }
+  }
+  :root[data-theme="dark"] {
+    --bg: #151C18;
+    --surface: #1D2621;
+    --ink: #EEE8DB;
+    --ink-2: #A79F91;
+    --line: #2F3A34;
+    --rojo: #E0564B;
+    --rojo-ink: #1A0B0A;
+    --verde: #8CC4A6;
+    --verde-soft: #223A30;
+    --mostaza: #E5B65A;
+    --mesa-a: #2E2823;
+    --mesa-b: #1F1B18;
+    --shadow: 0 18px 50px rgba(0, 0, 0, .55);
+  }
+
+  * { box-sizing: border-box; }
+  [hidden] { display: none !important; }
+  html { height: 100%; }
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--ink);
+    font-family: var(--body);
+    font-size: 16px;
+    line-height: 1.45;
+    -webkit-font-smoothing: antialiased;
+  }
+  button { font: inherit; color: inherit; }
+  :focus-visible { outline: 3px solid var(--mostaza); outline-offset: 2px; }
+
+  .wrap {
+    max-width: 640px;
+    margin: 0 auto;
+    padding-inline: 16px;
+    padding-block: 0 48px;
+  }
+
+  /* ---------- cabecera ---------- */
+  .top {
+    position: sticky;
+    top: env(safe-area-inset-top, 0px);
+    z-index: 5;
+    background: var(--bg);
+    padding-block: 14px 8px;
+    border-bottom: 1px solid var(--line);
+  }
+  .top-row { display: flex; align-items: flex-end; justify-content: space-between; gap: 12px; }
+  .eyebrow {
+    font-size: 11px; letter-spacing: .14em; text-transform: uppercase; font-weight: 600; color: var(--verde);
+  }
+  h1 {
+    font-family: var(--display);
+    font-weight: 400;
+    font-size: clamp(28px, 7vw, 38px);
+    line-height: 1.05;
+    margin: 2px 0 0;
+    letter-spacing: .005em;
+    text-wrap: balance;
+  }
+  .mesa {
+    flex: none;
+    display: inline-flex; flex-direction: column; align-items: center;
+    padding: 6px 12px 7px; border: 2px solid var(--ink); border-radius: 8px;
+    font-weight: 700; line-height: 1;
+  }
+  .mesa small { font-size: 10px; letter-spacing: .12em; text-transform: uppercase; font-weight: 600; color: var(--ink-2); margin-bottom: 3px; }
+  .mesa b { font-size: 22px; font-variant-numeric: tabular-nums; }
+  .tagline { margin: 8px 0 0; color: var(--ink-2); font-size: 14px; }
+  .tagline .cube { vertical-align: -3px; margin-right: 3px; }
+
+  .tabs {
+    display: flex; gap: 6px; margin-top: 10px; overflow-x: auto; scrollbar-width: none;
+  }
+  .tabs::-webkit-scrollbar { display: none; }
+  .tab {
+    flex: none; text-decoration: none; color: var(--ink-2);
+    padding: 6px 12px; border-radius: 999px; border: 1px solid var(--line);
+    font-size: 14px; font-weight: 600; background: var(--surface);
+  }
+  .tab[aria-current="true"] { background: var(--verde); border-color: var(--verde); color: var(--bg); }
+
+  /* ---------- secciones ---------- */
+  section { padding-top: 26px; scroll-margin-top: 150px; }
+  h2 {
+    font-family: var(--display); font-weight: 400; font-size: 21px; margin: 0 0 4px;
+    display: flex; align-items: baseline; gap: 10px;
+  }
+  h2 .n { font-family: var(--body); font-size: 12px; font-weight: 600; color: var(--ink-2); letter-spacing: .06em; }
+  .sec-note { margin: 0 0 8px; font-size: 13px; color: var(--ink-2); }
+
+  ul.items { list-style: none; margin: 0; padding: 0; }
+  .item {
+    display: grid; grid-template-columns: 1fr auto; gap: 4px 12px; align-items: center;
+    padding-block: 13px; border-bottom: 1px dashed var(--line);
+  }
+  .item:last-child { border-bottom: 0; }
+  .line { display: flex; align-items: baseline; gap: 6px; min-width: 0; }
+  .name { font-weight: 600; font-size: 16px; }
+  .leader { flex: 1 1 18px; min-width: 18px; border-bottom: 2px dotted var(--line); transform: translateY(-5px); }
+  .price { white-space: nowrap; font-variant-numeric: tabular-nums; font-weight: 500; }
+  .desc { grid-column: 1; margin: 0; font-size: 13.5px; color: var(--ink-2); max-width: 60ch; }
+  .action { grid-row: 1 / span 2; grid-column: 2; align-self: center; }
+
+  .btn3d {
+    display: inline-flex; align-items: center; gap: 6px;
+    border: 0; border-radius: 999px; padding: 9px 13px 9px 11px;
+    background: var(--rojo); color: var(--rojo-ink); font-weight: 700; font-size: 13.5px;
+    cursor: pointer; box-shadow: 0 2px 0 rgba(0, 0, 0, .12);
+    transition: transform .12s ease;
+  }
+  .btn3d:active { transform: translateY(1px); box-shadow: none; }
+  .soon {
+    display: inline-block; font-size: 11.5px; color: var(--ink-2); border: 1px dashed var(--line);
+    border-radius: 999px; padding: 5px 9px; white-space: nowrap;
+  }
+
+  .foot { margin-top: 28px; padding-top: 14px; border-top: 1px solid var(--line); font-size: 12.5px; color: var(--ink-2); }
+  .foot a { color: inherit; }
+
+  /* ---------- panel del plato ---------- */
+  .sheet { position: fixed; inset: 0; z-index: 50; display: grid; align-items: end; justify-items: center; }
+  .backdrop { position: absolute; inset: 0; background: rgba(20, 14, 8, .55); border: 0; padding: 0; cursor: pointer; }
+  .panel {
+    position: relative; width: 100%; max-width: 640px; max-height: 100%;
+    background: var(--surface); border-radius: 22px 22px 0 0; box-shadow: var(--shadow);
+    overflow: auto; padding-bottom: calc(16px + env(safe-area-inset-bottom, 0px));
+  }
+  .panel-head {
+    display: flex; align-items: flex-start; justify-content: space-between; gap: 10px;
+    padding: 14px 16px 10px;
+  }
+  .panel-head h3 { font-family: var(--display); font-weight: 400; font-size: 20px; margin: 0; line-height: 1.15; }
+  .size { margin: 4px 0 0; font-size: 13px; color: var(--ink-2); }
+  .size b { color: var(--ink); font-weight: 600; }
+  .close {
+    flex: none; width: 36px; height: 36px; border-radius: 50%; border: 1px solid var(--line);
+    background: var(--bg); cursor: pointer; display: grid; place-items: center;
+  }
+
+  model-viewer {
+    width: 100%; height: min(58vh, 440px); display: block;
+    background: radial-gradient(120% 90% at 50% 20%, var(--mesa-a), var(--mesa-b));
+    --progress-bar-color: var(--rojo); --progress-bar-height: 3px;
+    --poster-color: transparent;
+  }
+  .hint {
+    position: absolute; left: 12px; top: 12px; font-size: 11.5px; font-weight: 600; letter-spacing: .04em;
+    color: var(--ink); background: color-mix(in srgb, var(--surface) 82%, transparent);
+    padding: 4px 8px; border-radius: 6px; pointer-events: none;
+  }
+  .stage { position: relative; }
+  .ar-btn {
+    position: absolute; left: 50%; bottom: 14px; transform: translateX(-50%);
+    display: inline-flex; align-items: center; gap: 8px; white-space: nowrap;
+    border: 0; border-radius: 999px; padding: 12px 18px 12px 14px;
+    background: var(--rojo); color: var(--rojo-ink); font-weight: 700; font-size: 15px;
+    box-shadow: 0 8px 22px rgba(120, 20, 10, .35); cursor: pointer;
+  }
+  .hotspot {
+    display: grid; place-items: center; width: 22px; height: 22px; border-radius: 50%; border: 2px solid #fff; padding: 0;
+    background: var(--rojo); color: #fff; font-size: 11px; font-weight: 700; line-height: 1;
+    box-shadow: 0 0 0 4px rgba(179, 38, 30, .22), 0 2px 6px rgba(0, 0, 0, .25); cursor: pointer;
+    transition: transform .15s;
+  }
+  .hotspot.on { transform: scale(1.25); background: var(--verde); box-shadow: 0 0 0 4px rgba(36, 74, 58, .25), 0 2px 6px rgba(0, 0, 0, .25); }
+  .hs-label {
+    position: absolute; left: 26px; top: 50%; transform: translateY(-50%);
+    white-space: nowrap; font-size: 11.5px; font-weight: 600; color: #1E1A16;
+    background: rgba(255, 255, 255, .94); padding: 3px 7px; border-radius: 5px; pointer-events: none;
+    display: none;
+  }
+  .hotspot.on .hs-label, .hotspot:hover .hs-label, .hotspot:focus-visible .hs-label { display: block; }
+  .chips { display: flex; flex-wrap: wrap; gap: 6px; padding: 12px 16px 0; margin: 0; list-style: none; }
+  .chip {
+    border: 1px solid var(--line); background: var(--bg); border-radius: 999px; padding: 7px 11px;
+    font-size: 13px; font-weight: 500; cursor: pointer; display: inline-flex; align-items: center; gap: 6px;
+  }
+  .chip .k {
+    width: 18px; height: 18px; border-radius: 50%; background: var(--rojo); color: #fff;
+    font-size: 10.5px; font-weight: 700; display: grid; place-items: center;
+  }
+  .chip.on { border-color: var(--verde); background: var(--verde-soft); }
+  .chip.on .k { background: var(--verde); }
+  .chip.reset .k { background: var(--ink-2); }
+  .note { margin: 12px 16px 0; font-size: 13px; color: var(--ink-2); }
+  .note b { color: var(--ink); font-weight: 600; }
+  .ar-fallback {
+    margin: 10px 16px 0; padding: 10px 12px; border-radius: 10px; font-size: 13px;
+    background: var(--verde-soft); color: var(--ink);
+  }
+  .ar-fallback a { color: inherit; font-weight: 600; }
+
+  /* ---------- columna de escritorio ---------- */
+  .aside { display: none; }
+  @media (min-width: 960px) {
+    .layout { display: grid; grid-template-columns: 1fr 300px; gap: 40px; max-width: 1020px; margin: 0 auto; padding-inline: 24px; }
+    .wrap { max-width: none; padding-inline: 0; }
+    .aside { display: block; position: sticky; top: 24px; align-self: start; margin-top: 24px; }
+    .card { background: var(--surface); border: 1px solid var(--line); border-radius: 14px; padding: 18px; }
+    .card h4 { font-family: var(--display); font-weight: 400; font-size: 18px; margin: 0 0 6px; }
+    .card p { margin: 0 0 10px; font-size: 13.5px; color: var(--ink-2); }
+    .steps { margin: 0 0 12px; padding: 0; list-style: none; counter-reset: s; font-size: 13.5px; }
+    .steps li { counter-increment: s; display: flex; gap: 10px; padding-block: 5px; }
+    .steps li::before {
+      content: counter(s); flex: none; width: 22px; height: 22px; border-radius: 50%;
+      background: var(--verde); color: var(--bg); font-weight: 700; font-size: 12px; display: grid; place-items: center;
+    }
+    .qr { display: grid; place-items: center; background: #fff; border-radius: 10px; padding: 12px; min-height: 184px; border: 1px solid var(--line); }
+    .qr img, .qr canvas { display: block; }
+    .qr-empty { font-size: 12.5px; color: #6E6459; text-align: center; max-width: 20ch; }
+    .url { width: 100%; margin-top: 10px; padding: 9px 10px; border: 1px solid var(--line); border-radius: 8px; background: var(--bg); color: var(--ink); font: inherit; font-size: 13px; }
+    .panel { border-radius: 22px; margin-bottom: 4vh; }
+    .sheet { align-items: center; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    * { transition: none !important; }
+  }
+</style>
+
+<div class="layout">
+<main class="wrap">
+  <header class="top">
+    <div class="top-row">
+      <div>
+        <div class="eyebrow">Carta · Bodegón</div>
+        <h1>Bodegón La Maqueta</h1>
+      </div>
+      <div class="mesa" aria-label="Mesa"><small>Mesa</small><b id="mesa">7</b></div>
+    </div>
+    <p class="tagline">
+      <svg class="cube" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round" aria-hidden="true"><path d="M12 2 3 7v10l9 5 9-5V7z"/><path d="M3 7l9 5 9-5M12 12v10"/></svg>
+      Los platos marcados en rojo se ven en 3D y a tamaño real sobre tu mesa.
+    </p>
+    <nav class="tabs" aria-label="Secciones">
+      <a class="tab" href="#principales" aria-current="true">Principales</a>
+      <a class="tab" href="#cafeteria">Cafetería</a>
+      <a class="tab" href="#postres">Postres</a>
+    </nav>
+  </header>
+
+  <section id="principales">
+    <h2>Principales <span class="n">MEDIODÍA Y NOCHE</span></h2>
+    <ul class="items">
+      <li class="item">
+        <div class="line"><span class="name">Milanesa napolitana con papas fritas</span><span class="leader"></span><span class="price">$18.900</span></div>
+        <p class="desc">Nalga rebozada, salsa de tomate, jamón y muzzarella. Con papas fritas.</p>
+        <div class="action"><button class="btn3d" data-dish="napolitana" aria-haspopup="dialog">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linejoin="round" aria-hidden="true"><path d="M12 2 3 7v10l9 5 9-5V7z"/><path d="M3 7l9 5 9-5M12 12v10"/></svg>Ver en 3D</button></div>
+      </li>
+      <li class="item">
+        <div class="line"><span class="name">Milanesa a caballo</span><span class="leader"></span><span class="price">$17.500</span></div>
+        <p class="desc">Con dos huevos fritos y puré de papa.</p>
+        <div class="action"><span class="soon">3D pronto</span></div>
+      </li>
+      <li class="item">
+        <div class="line"><span class="name">Bife de chorizo</span><span class="leader"></span><span class="price">$24.900</span></div>
+        <p class="desc">400 g a la parrilla, con puré o ensalada mixta.</p>
+        <div class="action"><span class="soon">3D pronto</span></div>
+      </li>
+      <li class="item">
+        <div class="line"><span class="name">Ravioles de ricota con tuco</span><span class="leader"></span><span class="price">$15.800</span></div>
+        <p class="desc">Pasta casera. Opcional: estofado de carne +$3.500.</p>
+        <div class="action"><span class="soon">3D pronto</span></div>
+      </li>
+      <li class="item">
+        <div class="line"><span class="name">Provoleta</span><span class="leader"></span><span class="price">$9.900</span></div>
+        <p class="desc">A la parrilla con orégano y ají molido.</p>
+        <div class="action"><span class="soon">3D pronto</span></div>
+      </li>
+      <li class="item">
+        <div class="line"><span class="name">Tortilla de papas</span><span class="leader"></span><span class="price">$11.900</span></div>
+        <p class="desc">Babé o bien cocida, para dos.</p>
+        <div class="action"><span class="soon">3D pronto</span></div>
+      </li>
+    </ul>
+  </section>
+
+  <section id="cafeteria">
+    <h2>Cafetería <span class="n">DESAYUNO Y MERIENDA</span></h2>
+    <ul class="items">
+      <li class="item">
+        <div class="line"><span class="name">Café con leche con 3 medialunas</span><span class="leader"></span><span class="price">$7.800</span></div>
+        <p class="desc">Taza grande. Medialunas de manteca.</p>
+        <div class="action"><button class="btn3d" data-dish="cafe" aria-haspopup="dialog">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linejoin="round" aria-hidden="true"><path d="M12 2 3 7v10l9 5 9-5V7z"/><path d="M3 7l9 5 9-5M12 12v10"/></svg>Ver en 3D</button></div>
+      </li>
+      <li class="item">
+        <div class="line"><span class="name">Tostado de jamón y queso</span><span class="leader"></span><span class="price">$8.900</span></div>
+        <p class="desc">En pan de miga o árabe.</p>
+        <div class="action"><span class="soon">3D pronto</span></div>
+      </li>
+      <li class="item">
+        <div class="line"><span class="name">Submarino</span><span class="leader"></span><span class="price">$6.500</span></div>
+        <p class="desc">Leche caliente con barra de chocolate.</p>
+        <div class="action"><span class="soon">3D pronto</span></div>
+      </li>
+      <li class="item">
+        <div class="line"><span class="name">Licuado de banana con leche</span><span class="leader"></span><span class="price">$7.200</span></div>
+        <p class="desc">500 ml.</p>
+        <div class="action"><span class="soon">3D pronto</span></div>
+      </li>
+    </ul>
+  </section>
+
+  <section id="postres">
+    <h2>Postres <span class="n">CASEROS</span></h2>
+    <ul class="items">
+      <li class="item">
+        <div class="line"><span class="name">Flan casero mixto</span><span class="leader"></span><span class="price">$8.500</span></div>
+        <p class="desc">Con dulce de leche y crema.</p>
+        <div class="action"><button class="btn3d" data-dish="flan" aria-haspopup="dialog">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linejoin="round" aria-hidden="true"><path d="M12 2 3 7v10l9 5 9-5V7z"/><path d="M3 7l9 5 9-5M12 12v10"/></svg>Ver en 3D</button></div>
+      </li>
+      <li class="item">
+        <div class="line"><span class="name">Vigilante</span><span class="leader"></span><span class="price">$6.900</span></div>
+        <p class="desc">Queso fresco y dulce de batata o membrillo.</p>
+        <div class="action"><span class="soon">3D pronto</span></div>
+      </li>
+      <li class="item">
+        <div class="line"><span class="name">Panqueque con dulce de leche</span><span class="leader"></span><span class="price">$7.900</span></div>
+        <p class="desc">Dos unidades.</p>
+        <div class="action"><span class="soon">3D pronto</span></div>
+      </li>
+    </ul>
+  </section>
+
+  <p class="foot">
+    Prototipo. Los tres modelos son maquetas a escala real (plato, taza y medidas verdaderas), no escaneos del plato servido: en producción cada plato se escanea con el celular en 5–15 minutos. Precios de ejemplo.
+  </p>
+</main>
+
+<aside class="aside">
+  <div class="card">
+    <h4>Probalo en el celular</h4>
+    <ol class="steps">
+      <li>Escaneá el QR (o abrí este mismo link en el teléfono).</li>
+      <li>Tocá <b>&nbsp;Ver en 3D&nbsp;</b> en un plato.</li>
+      <li>Tocá <b>&nbsp;Ver en tu mesa&nbsp;</b> y apuntá la cámara a la mesa.</li>
+    </ol>
+    <div class="qr" id="qr"><span class="qr-empty">Pegá abajo el link de esta carta para generar el QR.</span></div>
+    <input class="url" id="url" type="url" placeholder="https://…" aria-label="Link de la carta para el QR">
+  </div>
+</aside>
+</div>
+
+<div class="sheet" id="sheet" hidden>
+  <button class="backdrop" id="backdrop" aria-label="Cerrar"></button>
+  <div class="panel" role="dialog" aria-modal="true" aria-labelledby="ptitle">
+    <div class="panel-head">
+      <div>
+        <h3 id="ptitle">—</h3>
+        <p class="size" id="psize"></p>
+      </div>
+      <button class="close" id="close" aria-label="Cerrar">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18"/></svg>
+      </button>
+    </div>
+    <div class="stage">
+      <model-viewer id="mv" alt="Plato en 3D" ar ar-modes="webxr scene-viewer quick-look" ar-scale="fixed" ar-placement="floor"
+        camera-controls touch-action="pan-y" interaction-prompt="auto" shadow-intensity="1.1" shadow-softness="0.75"
+        exposure="1.05" tone-mapping="neutral" environment-image="neutral"
+        camera-orbit="35deg 62deg auto" min-camera-orbit="auto 15deg auto" max-camera-orbit="auto 88deg auto">
+        <button slot="ar-button" class="ar-btn" id="arbtn">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 8V5a2 2 0 0 1 2-2h3M16 3h3a2 2 0 0 1 2 2v3M21 16v3a2 2 0 0 1-2 2h-3M8 21H5a2 2 0 0 1-2-2v-3"/><path d="M12 7l5 2.5v5L12 17l-5-2.5v-5z"/></svg>
+          Ver en tu mesa
+        </button>
+      </model-viewer>
+      <span class="hint" id="hint">Girá con el dedo</span>
+    </div>
+    <ul class="chips" id="chips"></ul>
+    <p class="note" id="pnote"></p>
+    <div class="ar-fallback" id="arfb" hidden></div>
+  </div>
+</div>
+
+<script type="module" src="https://cdn.jsdelivr.net/npm/@google/model-viewer@4.1.0/dist/model-viewer.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+<script>
+  // Cada plato: modelo GLB a escala real (metros, origen en la base del plato) + hotspots.
+  const DISHES = {
+    napolitana: {
+      title: 'Milanesa napolitana con papas fritas',
+      src: 'models/napolitana.glb',
+      size: '<b>Plato de 27 cm</b> · porción para 1',
+      note: 'La milanesa mide <b>19 × 14 cm</b> y sobresale del pozo del plato, como en cualquier bodegón. En AR el tamaño es el real: no se puede agrandar ni achicar.',
+      hotspots: [
+        { label: 'Milanesa de nalga · 19 × 14 cm', pos: '-0.12 0.026 0.0', normal: '0 1 0' },
+        { label: 'Salsa, jamón y muzzarella', pos: '-0.035 0.037 -0.03', normal: '0 1 0' },
+        { label: 'Papas fritas · ~180 g', pos: '0.085 0.046 0.0', normal: '0 1 0' },
+        { label: 'Plato de 27 cm', pos: '0 0.0255 0.125', normal: '0 1 0' },
+      ],
+    },
+    cafe: {
+      title: 'Café con leche con 3 medialunas',
+      src: 'models/cafe_medialunas.glb',
+      size: '<b>Taza de 200 ml</b> · platito de 17 cm',
+      note: 'La taza mide <b>8 cm de diámetro y 7,3 cm de alto</b>. Cada medialuna, unos <b>9 cm</b> de punta a punta.',
+      hotspots: [
+        { label: 'Café con leche · 200 ml', pos: '-0.06 0.073 0.0', normal: '0 1 0' },
+        { label: 'Medialunas de manteca × 3', pos: '0.148 0.027 0.0', normal: '0 1 0' },
+        { label: 'Platito de 17 cm', pos: '0.10 0.021 0.08', normal: '0 1 0' },
+      ],
+    },
+    flan: {
+      title: 'Flan casero mixto',
+      src: 'models/flan.glb',
+      size: '<b>Plato de 20 cm</b> · porción individual',
+      note: 'Flan de <b>9 cm de base y 4,5 cm de alto</b>, con caramelo, una cucharada de dulce de leche y crema batida.',
+      hotspots: [
+        { label: 'Flan casero · 9 cm', pos: '-0.02 0.058 0.0', normal: '0 1 0' },
+        { label: 'Dulce de leche', pos: '0.058 0.038 0.035', normal: '0 1 0' },
+        { label: 'Crema batida', pos: '0.055 0.074 -0.035', normal: '0 1 0' },
+        { label: 'Caramelo', pos: '-0.02 0.0135 0.052', normal: '0 1 0' },
+      ],
+    },
+  };
+
+  const $ = (s) => document.querySelector(s);
+  const sheet = $('#sheet'), mv = $('#mv'), chips = $('#chips'), arfb = $('#arfb');
+  const reduced = matchMedia('(prefers-reduced-motion: reduce)').matches;
+  let lastFocus = null, current = null;
+
+  // Número de mesa desde el QR/NFC: carta.com/?mesa=12
+  const mesa = new URLSearchParams(location.search).get('mesa');
+  if (mesa) $('#mesa').textContent = mesa;
+
+  function openDish(id) {
+    const d = DISHES[id]; if (!d) return;
+    current = id;
+    lastFocus = document.activeElement;
+    $('#ptitle').textContent = d.title;
+    $('#psize').innerHTML = d.size;
+    $('#pnote').innerHTML = d.note;
+    arfb.hidden = true;
+
+    mv.querySelectorAll('.hotspot').forEach((h) => h.remove());
+    chips.innerHTML = '';
+    d.hotspots.forEach((h, i) => {
+      const b = document.createElement('button');
+      b.className = 'hotspot'; b.slot = 'hotspot-' + i;
+      b.dataset.position = h.pos; b.dataset.normal = h.normal;
+      b.setAttribute('aria-label', h.label);
+      b.innerHTML = (i + 1) + '<span class="hs-label">' + h.label + '</span>';
+      b.addEventListener('click', () => focusHotspot(i));
+      mv.appendChild(b);
+
+      const c = document.createElement('li');
+      c.innerHTML = '<button class="chip" type="button"><span class="k">' + (i + 1) + '</span>' + h.label + '</button>';
+      c.firstChild.addEventListener('click', () => focusHotspot(i));
+      chips.appendChild(c);
+    });
+    const r = document.createElement('li');
+    r.innerHTML = '<button class="chip reset" type="button"><span class="k">&#8634;</span>Ver todo el plato</button>';
+    r.firstChild.addEventListener('click', () => focusHotspot(-1));
+    chips.appendChild(r);
+
+    mv.cameraTarget = 'auto auto auto';
+    mv.cameraOrbit = '35deg 62deg auto';
+    mv.fieldOfView = 'auto';
+    if (!reduced) mv.setAttribute('auto-rotate', ''); else mv.removeAttribute('auto-rotate');
+    mv.src = d.src;
+
+    sheet.hidden = false;
+    document.body.style.overflow = 'hidden';
+    $('#close').focus();
+  }
+
+  function focusHotspot(i) {
+    const d = DISHES[current]; if (!d) return;
+    mv.removeAttribute('auto-rotate');
+    mv.querySelectorAll('.hotspot').forEach((h, k) => h.classList.toggle('on', k === i));
+    chips.querySelectorAll('.chip').forEach((c, k) => c.classList.toggle('on', k === i));
+    if (i < 0) {
+      mv.cameraTarget = 'auto auto auto';
+      mv.cameraOrbit = '35deg 62deg auto';
+      mv.fieldOfView = 'auto';
+      return;
+    }
+    const [x, y, z] = d.hotspots[i].pos.split(' ');
+    mv.cameraTarget = `${x}m ${y}m ${z}m`;
+    mv.fieldOfView = '22deg';
+    mv.cameraOrbit = '35deg 58deg 0.5m';
+  }
+
+  function closeSheet() {
+    sheet.hidden = true;
+    document.body.style.overflow = '';
+    mv.removeAttribute('auto-rotate');
+    if (lastFocus) lastFocus.focus();
+  }
+
+  document.querySelectorAll('.btn3d').forEach((b) => b.addEventListener('click', () => openDish(b.dataset.dish)));
+  $('#close').addEventListener('click', closeSheet);
+  $('#backdrop').addEventListener('click', closeSheet);
+  document.addEventListener('keydown', (e) => { if (e.key === 'Escape' && !sheet.hidden) closeSheet(); });
+
+  // ¿Este navegador puede abrir AR? Si no, lo decimos en vez de dejar el botón mudo.
+  mv.addEventListener('load', () => {
+    if (mv.canActivateAR) { arfb.hidden = true; return; }
+    const mobile = /Android|iPhone|iPad/i.test(navigator.userAgent);
+    arfb.innerHTML = mobile
+      ? 'Este navegador no deja abrir la cámara para AR desde acá. Abrí el link en <b>Safari</b> (iPhone) o <b>Chrome</b> (Android), fuera de la app, y volvé a tocar el plato. Mientras tanto, giralo con el dedo.'
+      : 'AR se abre desde el celular: escaneá el QR o abrí este link en el teléfono. Acá podés girar el plato con el mouse.';
+    arfb.hidden = false;
+  });
+  mv.addEventListener('ar-status', (e) => {
+    if (e.detail.status === 'failed') {
+      arfb.innerHTML = 'No se pudo iniciar AR. Probá abrir el link directamente en Safari o Chrome (fuera de la app) y volvé a intentar.';
+      arfb.hidden = false;
+    }
+  });
+  // Algunos hostings no sirven .glb: si falla, probamos el mismo archivo publicado como .wasm.
+  mv.addEventListener('error', () => {
+    if (/\.glb$/.test(mv.src)) mv.src = mv.src.replace(/\.glb$/, '.wasm');
+  });
+  mv.addEventListener('camera-change', (e) => { if (e.detail.source === 'user-interaction') $('#hint').hidden = true; });
+
+  // QR para pasar la carta al celular (columna de escritorio).
+  const urlIn = $('#url'), qrBox = $('#qr');
+  let qr = null;
+  function drawQR(text) {
+    if (!window.QRCode) return;
+    qrBox.innerHTML = '';
+    qr = new QRCode(qrBox, { text, width: 160, height: 160, colorDark: '#1E1A16', colorLight: '#ffffff', correctLevel: QRCode.CorrectLevel.M });
+  }
+  if (urlIn) {
+    const embedded = window.self !== window.top;
+    if (!embedded) { urlIn.value = location.href; drawQR(location.href); }
+    urlIn.addEventListener('input', () => {
+      const v = urlIn.value.trim();
+      if (v.length > 8) drawQR(v);
+    });
+  }
+
+  // Pestañas: marcar la sección visible.
+  const tabs = [...document.querySelectorAll('.tab')];
+  const secs = tabs.map((t) => document.querySelector(t.getAttribute('href')));
+  if ('IntersectionObserver' in window) {
+    const io = new IntersectionObserver((entries) => {
+      entries.forEach((en) => {
+        if (!en.isIntersecting) return;
+        tabs.forEach((t, i) => t.setAttribute('aria-current', secs[i] === en.target ? 'true' : 'false'));
+      });
+    }, { rootMargin: '-45% 0px -50% 0px' });
+    secs.forEach((s) => s && io.observe(s));
+  }
+</script>
