@@ -198,6 +198,116 @@ def achicar(data, lado, idx):
     return out
 
 
+def borde_abierto(tris, keys, nweld):
+    """El contorno del corte: aristas que pertenecen a un solo triángulo.
+    Se trabaja sobre vértices soldados, porque los UV parten vértices que
+    geométricamente son el mismo punto."""
+    cuenta = {}
+    for t in tris:
+        k = [keys[i] for i in t]
+        for a, bb in ((k[0], k[1]), (k[1], k[2]), (k[2], k[0])):
+            cuenta[(min(a, bb), max(a, bb))] = cuenta.get((min(a, bb), max(a, bb)), 0) + 1
+    sueltas = [e for e, c in cuenta.items() if c == 1]
+    vecino = {}
+    for a, bb in sueltas:
+        vecino.setdefault(a, []).append(bb)
+        vecino.setdefault(bb, []).append(a)
+    lazos, visto = [], set()
+    for inicio in vecino:
+        if inicio in visto:
+            continue
+        lazo, actual, previo = [], inicio, None
+        while actual is not None and actual not in visto:
+            visto.add(actual)
+            lazo.append(actual)
+            siguiente = None
+            for v in vecino[actual]:
+                if v != previo and v not in visto:
+                    siguiente = v
+                    break
+            previo, actual = actual, siguiente
+        lazos.append(lazo)
+    return sorted(lazos, key=len, reverse=True)
+
+
+def cerrar_fondo(pos, tris, keys, nweld, alto_pie=0.006, pie=0.72):
+    """Un escaneo de un plato es una cáscara: no tiene ni canto ni fondo, porque
+    la cámara nunca vio por abajo. En AR eso se nota mucho — parece un plato de
+    papel recortado. Acá se hace dos cosas con el contorno del corte:
+
+      · se lo lleva a una circunferencia perfecta, para que el borde deje de
+        verse festoneado (el corte por radio serrucha la pared del ala del plato,
+        y un error de 2 mm ahí se ve enorme);
+      · se le cuelga una pared hasta la mesa y un fondo, así el plato queda
+        cerrado y se apoya como un objeto sólido.
+
+    Devuelve (vertices, normales, triangulos) de la base, en su propia primitiva
+    porque va con material liso, sin la textura del escaneo.
+    """
+    lazos = borde_abierto(tris, keys, nweld)
+    if not lazos:
+        return None
+    lazo = lazos[0]
+    if len(lazo) < 12:
+        return None
+
+    rep = {}
+    for i, k in enumerate(keys):
+        rep.setdefault(k, i)
+    pts = [pos[rep[k]] for k in lazo]
+    cx = sum(p[0] for p in pts) / len(pts)
+    cz = sum(p[2] for p in pts) / len(pts)
+    radios = [math.hypot(p[0] - cx, p[2] - cz) for p in pts]
+    R = sorted(radios)[len(radios) // 2]
+    festón = (max(radios) - min(radios)) * 1000
+    print(f'borde: {len(lazo)} puntos, radio {R * 100:.1f} cm, '
+          f'festoneado de {festón:.0f} mm -> se redondea a la circunferencia')
+
+    # el contorno se ordena por ángulo: el recorrido de aristas puede venir
+    # dado vuelta o con saltos, y para armar la pared hace falta que gire parejo
+    orden = sorted(range(len(lazo)),
+                   key=lambda i: math.atan2(pts[i][2] - cz, pts[i][0] - cx))
+    lazo = [lazo[i] for i in orden]
+    pts = [pts[i] for i in orden]
+
+    # llevar cada punto del contorno a la circunferencia, en todos sus duplicados
+    por_key = {}
+    for i, k in enumerate(keys):
+        por_key.setdefault(k, []).append(i)
+    for k, p in zip(lazo, pts):
+        ang = math.atan2(p[2] - cz, p[0] - cx)
+        nx, nz = cx + R * math.cos(ang), cz + R * math.sin(ang)
+        for i in por_key[k]:
+            pos[i] = (nx, pos[i][1], nz)
+
+    n = len(lazo)
+    verts, nrm, tris_base = [], [], []
+    for k in lazo:                                    # anillo de arriba
+        p = pos[rep[k]]
+        verts.append(p)
+        nrm.append((math.cos(math.atan2(p[2] - cz, p[0] - cx)), 0.0,
+                    math.sin(math.atan2(p[2] - cz, p[0] - cx))))
+    for k in lazo:                                    # anillo del pie
+        p = pos[rep[k]]
+        ang = math.atan2(p[2] - cz, p[0] - cx)
+        verts.append((cx + R * pie * math.cos(ang), 0.0, cz + R * pie * math.sin(ang)))
+        nrm.append((math.cos(ang), -0.3, math.sin(ang)))
+    centro = len(verts)
+    verts.append((cx, 0.0, cz))
+    nrm.append((0.0, -1.0, 0.0))
+    for i in range(n):
+        j = (i + 1) % n
+        tris_base += [(i, n + i, n + j), (i, n + j, j)]   # pared
+        tris_base.append((n + i, centro, n + j))          # fondo
+    # el anillo del pie mira hacia afuera y hacia abajo, para que el canto
+    # tenga sombreado propio y no se confunda con el fondo
+    for i in range(n, 2 * n):
+        v = (nrm[i][0], -0.6, nrm[i][2])
+        L = math.sqrt(v[0] ** 2 + v[1] ** 2 + v[2] ** 2)
+        nrm[i] = (v[0] / L, v[1] / L, v[2] / L)
+    return verts, nrm, tris_base
+
+
 def main():
     ap = argparse.ArgumentParser(description='Prepara un escaneo para la carta AR.')
     ap.add_argument('entrada')
@@ -219,6 +329,10 @@ def main():
                          'de la más grande (0 = no borrar nada; por defecto 0.02)')
     ap.add_argument('--sin-normales', action='store_true', dest='sin_normales',
                     help='no calcular normales suaves')
+    ap.add_argument('--fondo', action='store_true',
+                    help='redondea el borde del corte y le cierra el fondo al plato. '
+                         'Sin esto el escaneo es una cáscara sin canto ni base, y en AR '
+                         'se ve como un plato de papel recortado')
     ap.add_argument('--texturas', type=int, metavar='PX',
                     help='achica las texturas a PX píxeles de lado como máximo. Los '
                          'escáneres exportan en 2048, que en un celular no se nota y '
@@ -325,7 +439,12 @@ def main():
     tam = [t * factor for t in tam]
     print('tamaño final:     %.1f × %.1f × %.1f cm' % tuple(v * 100 for v in tam))
 
-    # --- 4. normales suaves ---
+    # --- 4. canto y fondo ---
+    base = cerrar_fondo(pos, tris, keys, nweld) if args.fondo else None
+    if args.fondo and not base:
+        print('aviso: no se encontró un contorno de corte para cerrar')
+
+    # --- 5. normales suaves ---
     nrm = None if args.sin_normales else smooth_normals(pos, tris, keys, nweld)
 
     # --- escribir ---
@@ -347,12 +466,28 @@ def main():
         images.append({'mimeType': 'image/jpeg',
                        'bufferView': b.view(data), 'name': im.get('name', '')})
 
+    primitivas = [{'attributes': attrs, 'indices': idx, 'material': prim.get('material', 0)}]
+    materiales = list(g.get('materials', []))
+    if base:
+        bv_, bn_, bt_ = base
+        primitivas.append({
+            'attributes': {'POSITION': b.vec(bv_, 3), 'NORMAL': b.vec(bn_, 3)},
+            'indices': b.indices([i for t in bt_ for i in t], len(bv_)),
+            'material': len(materiales)})
+        # loza lisa: los platos por debajo son blancos, sin el dibujo de arriba.
+        # doubleSided porque el contorno del escaneo no tiene una orientación
+        # confiable y, si la pared quedara al revés, sería invisible.
+        materiales.append({'name': 'fondo', 'doubleSided': True,
+                           'pbrMetallicRoughness': {
+                               'baseColorFactor': [0.90, 0.89, 0.86, 1.0],
+                               'metallicFactor': 0.0, 'roughnessFactor': 0.55}})
+        print(f'fondo: {len(bt_)} triángulos de canto y base')
+
     out = {'asset': {'version': '2.0', 'generator': 'FOOD-3D preparar.py'},
            'scene': 0, 'scenes': [{'nodes': [0]}],
            'nodes': [{'mesh': 0, 'name': os.path.basename(args.salida)}],
-           'meshes': [{'primitives': [{'attributes': attrs, 'indices': idx,
-                                       'material': prim.get('material', 0)}]}],
-           'materials': g.get('materials', []),
+           'meshes': [{'primitives': primitivas}],
+           'materials': materiales,
            'textures': g.get('textures', []),
            'samplers': g.get('samplers', []),
            'images': images}

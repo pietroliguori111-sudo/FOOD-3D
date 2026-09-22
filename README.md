@@ -62,8 +62,15 @@ Usa [`<model-viewer>`](https://modelviewer.dev) de Google:
    colgando. `--centro` corre el centro si el plato no quedó en el medio del escaneo:
 
    ```bash
-   python tools/preparar.py models/escaneo.glb models/milanesa_papas.glb        --centro -0.4 15.2 --recortar 13 --piso 5.3 --texturas 1024
+   python tools/preparar.py models/escaneo.glb models/milanesa_papas.glb        --centro -0.3 16.2 --recortar 12.15 --piso 4.9 --fondo --texturas 1024
    ```
+
+   `--fondo` hace dos cosas que importan mucho en AR. Un escaneo es una cáscara: no tiene
+   ni canto ni base, porque la cámara nunca vio el plato por abajo, y en el celular se ve
+   como un plato de papel recortado. Además el corte por radio serrucha la pared del ala
+   (en este plato dejó 13 mm de festoneado, que a ojo parece un borde de doily). Entonces
+   lleva el contorno del corte a una circunferencia perfecta y le cuelga una pared blanca
+   hasta la mesa, con su fondo. El resultado se apoya como un objeto sólido.
 
    `--texturas 1024` baja las texturas de 2048: en un celular no se nota y el archivo pasa
    de 4,8 MB a 1 MB. El script además calcula normales suaves (los escáneres exportan sin
