@@ -232,25 +232,31 @@
   }
   .ar-fallback a { color: inherit; font-weight: 600; }
 
-  /* ---------- columna de escritorio ---------- */
-  .aside { display: none; }
+  /* ---------- QR para pasar la carta al celular ---------- */
+  .qrbtn {
+    flex: none; display: inline-flex; align-items: center; gap: 6px;
+    padding: 7px 11px; border-radius: 8px; border: 2px solid var(--ink); background: transparent;
+    font-weight: 700; font-size: 13px; cursor: pointer; line-height: 1;
+  }
+  .qrpanel { padding: 4px 16px 8px; }
+  .qrpanel p { margin: 0 0 10px; font-size: 13.5px; color: var(--ink-2); }
+  .steps { margin: 0 0 14px; padding: 0; list-style: none; counter-reset: s; font-size: 13.5px; }
+  .steps li { counter-increment: s; display: flex; gap: 10px; padding-block: 4px; }
+  .steps li::before {
+    content: counter(s); flex: none; width: 22px; height: 22px; border-radius: 50%;
+    background: var(--verde); color: var(--bg); font-weight: 700; font-size: 12px; display: grid; place-items: center;
+  }
+  .qr {
+    display: grid; place-items: center; background: #fff; border-radius: 12px; padding: 14px;
+    min-height: 200px; border: 1px solid var(--line); width: min(100%, 260px); margin: 0 auto;
+  }
+  .qr img, .qr canvas { display: block; }
+  .qr-empty { font-size: 12.5px; color: #6E6459; text-align: center; max-width: 22ch; }
+  .url {
+    width: 100%; margin-top: 10px; padding: 9px 10px; border: 1px solid var(--line); border-radius: 8px;
+    background: var(--bg); color: var(--ink); font: inherit; font-size: 13px;
+  }
   @media (min-width: 960px) {
-    .layout { display: grid; grid-template-columns: 1fr 300px; gap: 40px; max-width: 1020px; margin: 0 auto; padding-inline: 24px; }
-    .wrap { max-width: none; padding-inline: 0; }
-    .aside { display: block; position: sticky; top: 24px; align-self: start; margin-top: 24px; }
-    .card { background: var(--surface); border: 1px solid var(--line); border-radius: 14px; padding: 18px; }
-    .card h4 { font-family: var(--display); font-weight: 400; font-size: 18px; margin: 0 0 6px; }
-    .card p { margin: 0 0 10px; font-size: 13.5px; color: var(--ink-2); }
-    .steps { margin: 0 0 12px; padding: 0; list-style: none; counter-reset: s; font-size: 13.5px; }
-    .steps li { counter-increment: s; display: flex; gap: 10px; padding-block: 5px; }
-    .steps li::before {
-      content: counter(s); flex: none; width: 22px; height: 22px; border-radius: 50%;
-      background: var(--verde); color: var(--bg); font-weight: 700; font-size: 12px; display: grid; place-items: center;
-    }
-    .qr { display: grid; place-items: center; background: #fff; border-radius: 10px; padding: 12px; min-height: 184px; border: 1px solid var(--line); }
-    .qr img, .qr canvas { display: block; }
-    .qr-empty { font-size: 12.5px; color: #6E6459; text-align: center; max-width: 20ch; }
-    .url { width: 100%; margin-top: 10px; padding: 9px 10px; border: 1px solid var(--line); border-radius: 8px; background: var(--bg); color: var(--ink); font: inherit; font-size: 13px; }
     .panel { border-radius: 22px; margin-bottom: 4vh; }
     .sheet { align-items: center; }
   }
@@ -259,7 +265,6 @@
   }
 </style>
 
-<div class="layout">
 <main class="wrap">
   <header class="top">
     <div class="top-row">
@@ -267,7 +272,12 @@
         <div class="eyebrow">Carta · Bodegón</div>
         <h1>Bodegón La Maqueta</h1>
       </div>
-      <div class="mesa" aria-label="Mesa"><small>Mesa</small><b id="mesa">7</b></div>
+      <div style="display:flex; align-items:center; gap:8px">
+        <button class="qrbtn" id="qrbtn" type="button" aria-haspopup="dialog" aria-label="Pasar la carta al celular">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><path d="M14 14h3v3M21 14v3h-2M14 21h2M18 19h3v2"/></svg>QR
+        </button>
+        <div class="mesa" aria-label="Mesa"><small>Mesa</small><b id="mesa">7</b></div>
+      </div>
     </div>
     <p class="tagline">
       <svg class="cube" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round" aria-hidden="true"><path d="M12 2 3 7v10l9 5 9-5V7z"/><path d="M3 7l9 5 9-5M12 12v10"/></svg>
@@ -371,18 +381,29 @@
   </p>
 </main>
 
-<aside class="aside">
-  <div class="card">
-    <h4>Probalo en el celular</h4>
-    <ol class="steps">
-      <li>Escaneá el QR (o abrí este mismo link en el teléfono).</li>
-      <li>Tocá <b>&nbsp;Ver en 3D&nbsp;</b> en un plato.</li>
-      <li>Tocá <b>&nbsp;Ver en tu mesa&nbsp;</b> y apuntá la cámara a la mesa.</li>
-    </ol>
-    <div class="qr" id="qr"><span class="qr-empty">Pegá abajo el link de esta carta para generar el QR.</span></div>
-    <input class="url" id="url" type="url" placeholder="https://…" aria-label="Link de la carta para el QR">
+<div class="sheet" id="qrsheet" hidden>
+  <button class="backdrop" data-close-qr aria-label="Cerrar"></button>
+  <div class="panel" role="dialog" aria-modal="true" aria-labelledby="qrtitle">
+    <div class="panel-head">
+      <div>
+        <h3 id="qrtitle">Pasalo al celular</h3>
+        <p class="size">El AR se abre desde el teléfono, no desde la compu.</p>
+      </div>
+      <button class="close" data-close-qr aria-label="Cerrar">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18"/></svg>
+      </button>
+    </div>
+    <div class="qrpanel">
+      <ol class="steps">
+        <li>Escaneá el QR con la cámara del celular (o abrí este mismo link ahí).</li>
+        <li>Tocá <b>&nbsp;Ver en 3D&nbsp;</b> en un plato.</li>
+        <li>Tocá <b>&nbsp;Ver en tu mesa&nbsp;</b> y apuntá la cámara a la mesa.</li>
+      </ol>
+      <div class="qr" id="qr"><span class="qr-empty">Pegá abajo el link de esta carta para generar el QR.</span></div>
+      <input class="url" id="url" type="url" placeholder="https://…" aria-label="Link de la carta para el QR">
+      <p style="margin-top:10px">Este es el QR que iría pegado en cada mesa (con <code>?mesa=N</code> al final para saber cuál es).</p>
+    </div>
   </div>
-</aside>
 </div>
 
 <div class="sheet" id="sheet" hidden>
@@ -557,7 +578,23 @@
   });
   mv.addEventListener('camera-change', (e) => { if (e.detail.source === 'user-interaction') $('#hint').hidden = true; });
 
-  // QR para pasar la carta al celular (columna de escritorio).
+  // QR para pasar la carta al celular.
+  const qrsheet = $('#qrsheet');
+  function openQR() {
+    lastFocus = document.activeElement;
+    qrsheet.hidden = false;
+    document.body.style.overflow = 'hidden';
+    qrsheet.querySelector('.close').focus();
+  }
+  function closeQR() {
+    qrsheet.hidden = true;
+    document.body.style.overflow = '';
+    if (lastFocus) lastFocus.focus();
+  }
+  $('#qrbtn').addEventListener('click', openQR);
+  qrsheet.querySelectorAll('[data-close-qr]').forEach((b) => b.addEventListener('click', closeQR));
+  document.addEventListener('keydown', (e) => { if (e.key === 'Escape' && !qrsheet.hidden) closeQR(); });
+
   const urlIn = $('#url'), qrBox = $('#qr');
   let qr = null;
   function drawQR(text) {
