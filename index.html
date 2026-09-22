@@ -317,6 +317,12 @@
     <h2>Principales <span class="n">MEDIODÍA Y NOCHE</span></h2>
     <ul class="items">
       <li class="item">
+        <div class="line"><span class="name">Milanesa con papas noisette</span><span class="leader"></span><span class="price">$17.900</span></div>
+        <p class="desc">Milanesa de ternera con papas noisette y pan casero.</p>
+        <div class="action"><button class="btn3d" data-dish="milanesa" aria-haspopup="dialog">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linejoin="round" aria-hidden="true"><path d="M12 2 3 7v10l9 5 9-5V7z"/><path d="M3 7l9 5 9-5M12 12v10"/></svg>Ver en 3D</button></div>
+      </li>
+      <li class="item">
         <div class="line"><span class="name">Milanesa napolitana con papas fritas</span><span class="leader"></span><span class="price">$18.900</span></div>
         <p class="desc">Nalga rebozada, salsa de tomate, jamón y muzzarella. Con papas fritas.</p>
         <div class="action"><button class="btn3d" data-dish="napolitana" aria-haspopup="dialog">
@@ -464,6 +470,18 @@
 <script>
   // Cada plato: modelo GLB a escala real (metros, origen en la base del plato) + hotspots.
   const DISHES = {
+    milanesa: {
+      title: 'Milanesa con papas noisette',
+      src: 'models/milanesa_papas.glb',
+      size: '<b>Plato de 26 cm</b> · porción para 1',
+      note: 'Escaneo real de un plato servido, no una maqueta: <b>esta</b> es la porción que sale de la cocina. La milanesa tapa media fuente y las papas ocupan el otro medio.',
+      hotspots: [
+        { label: 'Milanesa de ternera', pos: '0.0133 0.0264 0.0707', normal: '0 1 0' },
+        { label: 'Papas noisette', pos: '-0.0651 0.0419 -0.0081', normal: '0 1 0' },
+        { label: 'Pan casero', pos: '0.0458 0.0328 -0.0375', normal: '0 1 0' },
+        { label: 'Plato de 26 cm', pos: '0 0.0125 0.1195', normal: '0 1 0' },
+      ],
+    },
     salame: {
       title: 'Salamín tipo Tandil',
       src: 'models/salame.glb',

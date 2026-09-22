@@ -47,6 +47,57 @@ Usa [`<model-viewer>`](https://modelviewer.dev) de Google:
 
 ## Agregar un plato escaneado
 
+1. Escanealo con el celular (Polycam, Luma, RealityScan u Object Capture). Luz difusa y
+   60–100 fotos dando la vuelta completa. **No importa si entra la mesa**: se recorta después.
+2. Exportá en **GLB** y copialo a `models/`.
+3. Mirá qué hay en el escaneo antes de recortar:
+
+   ```bash
+   python tools/preparar.py models/escaneo.glb models/borrar.glb
+   ```
+
+   Imprime el tamaño y el reparto de superficie por distancia al centro.
+4. Recortá el plato y sacá la mesa. `--recortar` tira todo lo que esté a más de R cm del
+   centro; `--piso` tira todo lo que esté por debajo de H cm, que es el espesor de la mesa
+   colgando. `--centro` corre el centro si el plato no quedó en el medio del escaneo:
+
+   ```bash
+   python tools/preparar.py models/escaneo.glb models/milanesa_papas.glb        --centro -0.4 15.2 --recortar 13 --piso 5.3 --texturas 1024
+   ```
+
+   `--texturas 1024` baja las texturas de 2048: en un celular no se nota y el archivo pasa
+   de 4,8 MB a 1 MB. El script además calcula normales suaves (los escáneres exportan sin
+   `NORMAL` y three.js sombrea facetado), borra las islas sueltas, centra el modelo y lo
+   apoya en `y = 0`.
+5. Revisalo con las medidas a la vista:
+
+   ```bash
+   python -m http.server 8765
+   ```
+
+   y abrí `http://localhost:8765/tools/ver.html?m=../models/milanesa_papas.glb`.
+6. Agregá la entrada en `DISHES` dentro de `index.html` (título, medidas, hotspots) y el
+   botón `Ver en 3D` en el ítem del menú. Las posiciones de los hotspots van en metros, en
+   el sistema del modelo ya recortado.
+
+Para ubicar el plato dentro de un escaneo con varias cosas sobre la mesa, el truco es
+mirar qué sobresale del plano: la mesa aparece como una banda de altura con muchísima
+superficie, y cada objeto encima como un grupo aparte.
+
+Los `.glb` con fecha por nombre (`22_9_2026.glb`) son los escaneos crudos, sin recortar.
+Se guardan para poder volver a recortar con otros números sin re-escanear el plato.
+
+## Cómo funciona el AR
+
+Usa [`<model-viewer>`](https://modelviewer.dev) de Google:
+
+- **Android** (Chrome): abre WebXR o Scene Viewer (ARCore).
+- **iPhone** (Safari): convierte el GLB a USDZ y abre AR Quick Look.
+- `ar-scale="fixed"` evita que el cliente agrande o achique el plato: lo ve del tamaño real.
+- Si el navegador no soporta AR, queda el visor 3D para girar con el dedo.
+
+## Agregar un plato escaneado
+
 1. Escanealo con el celular (Polycam, Luma, RealityScan u Object Capture). Luz difusa,
    fondo mate, 60–100 fotos dando la vuelta completa. Recortá la mesa antes de exportar.
 2. Exportá en **GLB** y copialo a `models/`.

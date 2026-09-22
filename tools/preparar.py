@@ -177,6 +177,27 @@ def smooth_normals(pos, tris, keys, nweld):
     return out
 
 
+def achicar(data, lado, idx):
+    """Reduce una textura JPEG. Pillow solo se necesita si se usa --texturas."""
+    try:
+        from PIL import Image
+    except ImportError:
+        sys.exit('--texturas necesita Pillow: pip install Pillow')
+    import io
+    img = Image.open(io.BytesIO(data))
+    antes = len(data)
+    if max(img.size) > lado:
+        escala = lado / max(img.size)
+        img = img.resize((round(img.width * escala), round(img.height * escala)),
+                         Image.LANCZOS)
+    buf = io.BytesIO()
+    img.convert('RGB').save(buf, 'JPEG', quality=88, optimize=True)
+    out = buf.getvalue()
+    print(f'  textura {idx}: {img.width}×{img.height}, '
+          f'{antes / 1e6:.2f} -> {len(out) / 1e6:.2f} MB')
+    return out
+
+
 def main():
     ap = argparse.ArgumentParser(description='Prepara un escaneo para la carta AR.')
     ap.add_argument('entrada')
@@ -184,11 +205,24 @@ def main():
     ap.add_argument('--largo', type=float, help='medida real en cm sobre X')
     ap.add_argument('--alto', type=float, help='medida real en cm sobre Y')
     ap.add_argument('--ancho', type=float, help='medida real en cm sobre Z')
+    ap.add_argument('--recortar', type=float, metavar='R',
+                    help='tira todo lo que quede a más de R cm del centro: así se saca '
+                         'la mesa que el escáner capturó alrededor del plato')
+    ap.add_argument('--centro', type=float, nargs=2, metavar=('X', 'Z'),
+                    help='centro del recorte en cm, si el plato no quedó en el medio '
+                         '(por defecto, el centro del escaneo)')
+    ap.add_argument('--piso', type=float, metavar='H',
+                    help='tira todo lo que esté por debajo de H cm: saca el espesor de '
+                         'la mesa que el escáner capturó colgando bajo el plato')
     ap.add_argument('--islas', type=float, default=0.02,
                     help='borra las islas con menos de esta fracción de los triángulos '
                          'de la más grande (0 = no borrar nada; por defecto 0.02)')
     ap.add_argument('--sin-normales', action='store_true', dest='sin_normales',
                     help='no calcular normales suaves')
+    ap.add_argument('--texturas', type=int, metavar='PX',
+                    help='achica las texturas a PX píxeles de lado como máximo. Los '
+                         'escáneres exportan en 2048, que en un celular no se nota y '
+                         'pesa cuatro veces más: 1024 es el punto justo')
     args = ap.parse_args()
 
     g, blob = read_glb(args.entrada)
@@ -205,9 +239,52 @@ def main():
     print(f'entrada: {len(tris)} triángulos, {len(pos)} vértices, '
           f'{os.path.getsize(args.entrada) / 1e6:.2f} MB')
 
+    # --- 1. recorte de la mesa ---
+    # Cuánta superficie hay a cada distancia del centro: el plato se ve como un
+    # bulto hasta su borde, y la mesa como una cola larga y pareja después.
+    # De ahí se saca el número para --recortar.
+    cx0 = (min(p[0] for p in pos) + max(p[0] for p in pos)) / 2
+    cz0 = (min(p[2] for p in pos) + max(p[2] for p in pos)) / 2
+    cx, cz = (args.centro[0] / 100, args.centro[1] / 100) if args.centro else (cx0, cz0)
+
+    def radio(t):
+        x = sum(pos[i][0] for i in t) / 3 - cx
+        z = sum(pos[i][2] for i in t) / 3 - cz
+        return math.hypot(x, z)
+
+    radios = [radio(t) for t in tris]
+    rmax = max(radios)
+    bandas = 10
+    cuenta = [0] * bandas
+    for r in radios:
+        cuenta[min(bandas - 1, int(r / rmax * bandas))] += 1
+    print('reparto por distancia al centro (para elegir --recortar):')
+    for i, c in enumerate(cuenta):
+        desde, hasta = rmax * i / bandas * 100, rmax * (i + 1) / bandas * 100
+        barra = '#' * round(40 * c / max(cuenta))
+        print(f'  {desde:5.1f}–{hasta:5.1f} cm {c:6d} {barra}')
+
+    if args.recortar:
+        R = args.recortar / 100
+        antes = len(tris)
+        tris = [t for t, r in zip(tris, radios) if r <= R]
+        print(f'recorte: se tiran {antes - len(tris)} triángulos de más de '
+              f'{args.recortar} cm del centro, quedan {len(tris)}')
+        if not tris:
+            sys.exit('el recorte se comió todo el modelo: probá un radio más grande')
+
+    if args.piso is not None:
+        P = args.piso / 100
+        antes = len(tris)
+        tris = [t for t in tris if sum(pos[i][1] for i in t) / 3 >= P]
+        print(f'piso: se tiran {antes - len(tris)} triángulos por debajo de '
+              f'{args.piso} cm, quedan {len(tris)}')
+        if not tris:
+            sys.exit('el piso se comió todo el modelo: probá una altura más baja')
+
     keys, nweld = weld_keys(pos)
 
-    # --- 1. islas sueltas ---
+    # --- 2. islas sueltas ---
     if args.islas > 0:
         comps = components(tris, keys, nweld)
         corte = len(comps[0]) * args.islas
@@ -260,12 +337,14 @@ def main():
         attrs['TEXCOORD_0'] = b.vec(uv, 2)
     idx = b.indices([i for t in tris for i in t], len(pos))
 
-    # las imágenes se copian tal cual al buffer nuevo
+    # las imágenes se copian al buffer nuevo, achicándolas si se pidió
     images = []
-    for im in g.get('images', []):
+    for i, im in enumerate(g.get('images', [])):
         bv = g['bufferViews'][im['bufferView']]
         data = blob[bv.get('byteOffset', 0): bv.get('byteOffset', 0) + bv['byteLength']]
-        images.append({'mimeType': im.get('mimeType', 'image/jpeg'),
+        if args.texturas:
+            data = achicar(data, args.texturas, i)
+        images.append({'mimeType': 'image/jpeg',
                        'bufferView': b.view(data), 'name': im.get('name', '')})
 
     out = {'asset': {'version': '2.0', 'generator': 'FOOD-3D preparar.py'},
