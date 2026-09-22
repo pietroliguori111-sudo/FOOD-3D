@@ -84,6 +84,14 @@ Para ubicar el plato dentro de un escaneo con varias cosas sobre la mesa, el tru
 mirar qué sobresale del plano: la mesa aparece como una banda de altura con muchísima
 superficie, y cada objeto encima como un grupo aparte.
 
+**El centro importa más que el radio.** Si el círculo de recorte queda corrido aunque sea
+un centímetro, de un lado sobra un fleco de mesa y del otro se come el borde del plato, y
+no hay radio que arregle las dos cosas a la vez. El centro del bloque de triángulos no
+sirve, porque la comida no está repartida pareja en el plato. Lo que sí sirve: quedarse
+con los triángulos cuyo color es loza (poco saturados, o verdes/azules de la decoración),
+buscar el más lejano en cada sector angular, y ajustar un círculo a esos puntos. En este
+plato eso dio un centro 1 cm distinto y un diámetro de 24,5 cm en vez de 26.
+
 Los `.glb` con fecha por nombre (`22_9_2026.glb`) son los escaneos crudos, sin recortar.
 Se guardan para poder volver a recortar con otros números sin re-escanear el plato.
 
