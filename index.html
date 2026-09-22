@@ -284,11 +284,34 @@
       Los platos marcados en rojo se ven en 3D y a tamaño real sobre tu mesa.
     </p>
     <nav class="tabs" aria-label="Secciones">
-      <a class="tab" href="#principales" aria-current="true">Principales</a>
+      <a class="tab" href="#picar" aria-current="true">Para picar</a>
+      <a class="tab" href="#principales">Principales</a>
       <a class="tab" href="#cafeteria">Cafetería</a>
       <a class="tab" href="#postres">Postres</a>
     </nav>
   </header>
+
+  <section id="picar">
+    <h2>Para picar <span class="n">MIENTRAS ESPERÁS</span></h2>
+    <ul class="items">
+      <li class="item">
+        <div class="line"><span class="name">Salamín tipo Tandil</span><span class="leader"></span><span class="price">$6.900</span></div>
+        <p class="desc">Pieza entera, curado 60 días. Se corta en la mesa.</p>
+        <div class="action"><button class="btn3d" data-dish="salame" aria-haspopup="dialog">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linejoin="round" aria-hidden="true"><path d="M12 2 3 7v10l9 5 9-5V7z"/><path d="M3 7l9 5 9-5M12 12v10"/></svg>Ver en 3D</button></div>
+      </li>
+      <li class="item">
+        <div class="line"><span class="name">Picada para dos</span><span class="leader"></span><span class="price">$16.500</span></div>
+        <p class="desc">Salamín, queso de máquina, aceitunas, maní y pan.</p>
+        <div class="action"><span class="soon">3D pronto</span></div>
+      </li>
+      <li class="item">
+        <div class="line"><span class="name">Queso y dulce</span><span class="leader"></span><span class="price">$5.900</span></div>
+        <p class="desc">Queso fresco con dulce de membrillo.</p>
+        <div class="action"><span class="soon">3D pronto</span></div>
+      </li>
+    </ul>
+  </section>
 
   <section id="principales">
     <h2>Principales <span class="n">MEDIODÍA Y NOCHE</span></h2>
@@ -441,6 +464,17 @@
 <script>
   // Cada plato: modelo GLB a escala real (metros, origen en la base del plato) + hotspots.
   const DISHES = {
+    salame: {
+      title: 'Salamín tipo Tandil',
+      src: 'models/salame.glb',
+      size: '<b>22 cm de largo</b> · pieza entera',
+      note: 'Este no es una maqueta: es un <b>escaneo real</b> hecho con el celular. La base se ve plana y hay una zona estirada porque la cámara nunca lo vio por abajo.',
+      hotspots: [
+        { label: 'Salamín entero · 22 cm', pos: '-0.0938 0.0445 0.0076', normal: '0 1 0' },
+        { label: 'Corteza con flor blanca', pos: '0.0452 0.033 -0.0106', normal: '0 1 0' },
+        { label: 'Atado a mano', pos: '0.0789 0.0381 -0.0113', normal: '0 1 0' },
+      ],
+    },
     napolitana: {
       title: 'Milanesa napolitana con papas fritas',
       src: 'models/napolitana.glb',

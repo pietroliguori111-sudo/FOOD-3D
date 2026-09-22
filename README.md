@@ -39,9 +39,29 @@ Usa [`<model-viewer>`](https://modelviewer.dev) de Google:
 - `ar-scale="fixed"` evita que el cliente agrande o achique el plato: lo ve del tamaño real.
 - Si el navegador no soporta AR, queda el visor 3D para girar con el dedo.
 
-## Agregar un plato de verdad
+## Agregar un plato escaneado
 
-1. Escanealo con el celular (Polycam, Luma, RealityScan o Object Capture de iOS). Luz difusa, plato sobre fondo mate, 60–100 fotos alrededor.
-2. Exportá a **GLB**. Verificá que esté en metros (un plato de 27 cm mide 0.27 unidades) y con la base en `y = 0`.
-3. Comprimilo si pesa más de 5 MB (`gltf-transform optimize plato.glb plato.glb --texture-compress webp`).
-4. Copialo a `models/` y agregá la entrada en `DISHES` dentro de `index.html` (título, medidas, hotspots) y el botón `Ver en 3D` en el ítem del menú.
+1. Escanealo con el celular (Polycam, Luma, RealityScan u Object Capture). Luz difusa,
+   fondo mate, 60–100 fotos dando la vuelta completa. Recortá la mesa antes de exportar.
+2. Exportá en **GLB** y copialo a `models/`.
+3. Medí con una regla algo del plato (el diámetro, el largo) y pasale esa medida al
+   preparador, que además le calcula normales suaves, borra los pedazos sueltos que deja
+   la fotogrametría, lo centra y lo apoya en `y = 0`:
+
+   ```bash
+   python tools/preparar.py models/escaneo.glb models/milanesa.glb --largo 19
+   ```
+
+   Sin `--largo/--alto/--ancho` conserva la escala que trajo el escáner, que solo es
+   confiable si se capturó con LiDAR.
+4. Revisalo antes de publicarlo, con las medidas a la vista:
+
+   ```bash
+   python -m http.server 8765
+   ```
+
+   y abrí `http://localhost:8765/tools/ver.html?m=../models/milanesa.glb`.
+5. Agregá la entrada en `DISHES` dentro de `index.html` (título, medidas, hotspots) y el
+   botón `Ver en 3D` en el ítem del menú. Las posiciones de los hotspots van en metros,
+   en el sistema del modelo.
+
