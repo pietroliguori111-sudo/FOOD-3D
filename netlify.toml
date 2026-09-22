@@ -1,0 +1,19 @@
+# El sitio es estático: se publica la carpeta tal cual, sin compilar nada.
+[build]
+  publish = "."
+
+# Los modelos no cambian salvo que se rehaga el escaneo, así que el celular
+# los puede guardar en caché un año: la segunda visita a la mesa abre al instante.
+# El tipo va explícito porque Netlify no conoce la extensión .glb y los manda
+# como application/octet-stream.
+[[headers]]
+  for = "/models/*.glb"
+  [headers.values]
+    Content-Type = "model/gltf-binary"
+    Cache-Control = "public, max-age=31536000, immutable"
+
+# La carta sí cambia (precios, platos nuevos): que el teléfono revalide siempre.
+[[headers]]
+  for = "/index.html"
+  [headers.values]
+    Cache-Control = "public, max-age=0, must-revalidate"

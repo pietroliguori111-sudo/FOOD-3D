@@ -16,19 +16,25 @@ python -m http.server 8765
 Abrí `http://localhost:8765`. Hace falta un servidor (no sirve abrir el archivo directo)
 porque el visor carga los `.glb` por red.
 
-## Publicar para probar en el celular
+## Dónde está publicado
 
-Cualquier hosting estático sirve: arrastrá la carpeta `FOOD-3D` a Netlify Drop
-(app.netlify.com/drop), o subila a GitHub Pages / Vercel / Cloudflare Pages.
-Tiene que ser **https** (AR y la cámara lo exigen).
+**https://cartaenmesa.netlify.app** — este es el link que va en los mails y en los QR.
 
-Después, generá un QR con esa URL (la página de escritorio lo hace sola) y pegalo en la mesa.
-Para saber de qué mesa vienen, usá `https://tu-dominio/?mesa=12`. Un tag NFC (NTAG213)
-se graba con la misma URL desde cualquier app de NFC del celular.
+Se publica desde esta carpeta con el CLI de Netlify:
 
-Nota: la versión publicada en claude.ai lleva los modelos como `models/*.wasm` porque ese
-hosting no sirve `.glb`; `index.html` intenta `.glb` y, si falla, carga el `.wasm`. En un
-hosting normal usá los `.glb` tal cual.
+```bash
+netlify deploy --prod --dir .
+```
+
+`netlify.toml` define la caché: los modelos se guardan un año en el teléfono (no cambian
+salvo que se rehaga el escaneo) y `index.html` se revalida siempre (precios y platos sí cambian).
+También fuerza el tipo `model/gltf-binary` en los `.glb`, que Netlify no reconoce solo.
+
+El mismo contenido está espejado en GitHub Pages
+(https://pietroliguori111-sudo.github.io/FOOD-3D/), que se actualiza con cada `git push`.
+
+Para saber de qué mesa viene el cliente, el QR de cada mesa lleva `?mesa=12` al final.
+Un tag NFC (NTAG213) se graba con la misma URL desde cualquier app de NFC del celular.
 
 ## Cómo funciona el AR
 
